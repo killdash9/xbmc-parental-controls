@@ -1,4 +1,5 @@
 xbmc-parental-controls
 ======================
 
-Xbox Media Center 
+Xbox Media Center parental controls plugin
+
