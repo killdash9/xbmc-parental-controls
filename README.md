@@ -1,7 +1,5 @@
-xbmc-parental-controls
-======================
-
 Xbox Media Center parental controls plugin
+==========================================
 
 Select the video plugins you want to protect and the ratings you want to allow.  
 Supports both TV and Movie ratings.  This plugin will ask for an unlock code 
