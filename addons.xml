@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon id="script.video.parentalcontrols" name="Parental Controls" version="1.4.3" provider-name="killdash9">
+<addon id="script.video.parentalcontrols" name="Parental Controls" version="1.4.4" provider-name="killdash9">
   <requires>
     <import addon="xbmc.python" version="2.0"/>
   </requires>
@@ -19,7 +19,7 @@
   <extension point="xbmc.addon.repository"
               name="XBMC Parental Controls Repository">
     <info compressed="false">https://github.com/killdash9/xbmc-parental-controls/raw/master/addons.xml</info>
-    <checksum>https://github.com/killdash9/xbmc-parental-controls/raw/master/repo/addons.xml.md5</checksum>
+    <checksum>https://github.com/killdash9/xbmc-parental-controls/raw/master/addons.xml.md5</checksum>
     <datadir zip="true">https://github.com/killdash9/xbmc-parental-controls/raw/master/repo</datadir>
   </extension>
 </addon>
