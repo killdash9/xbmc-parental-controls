@@ -8,11 +8,7 @@ __addon__       = xbmcaddon.Addon('script.video.parentalcontrols')
 __addonpath__   = __addon__.getAddonInfo('path')
 
 class ComboWinXML(xbmcgui.WindowXMLDialog):
-    def __init__(self,strXMLname, strFallbackPath, message):
-        # Changing the three varibles passed won't change, anything
-        # Doing strXMLname = "bah.xml" will not change anything.
-        # don't put GUI sensitive stuff here (as the xml hasn't been read yet
-        # Idea to initialize your variables here
+    def __init__(self,strXMLname, strFallbackPath, default, message):
         self.code=""
         self.stars=""
         self.message = message
@@ -44,7 +40,7 @@ class ComboWinXML(xbmcgui.WindowXMLDialog):
 
 
 def showComboDialog(title):
-    ui= ComboWinXML("DialogCode.xml", __addonpath__, title)
+    ui= ComboWinXML("DialogCode.xml", __addonpath__, "default", title)
     ui.doModal()
     if (ui.ok):
         code = ui.code
