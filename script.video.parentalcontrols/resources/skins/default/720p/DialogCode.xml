@@ -11,7 +11,7 @@
 			<posx>0</posx>
 			<posy>0</posy>
 			<width>320</width>
-			<height>430</height>
+			<height>300</height>
 			<texture border="40">DialogBack.png</texture>
 		</control>
 		<control type="image">
@@ -72,7 +72,7 @@
 			<height>100</height>
 			<align>left</align>
 			<aligny>center</aligny>
-			<label>Press any combination of up, down, left, and right.  Press Center/OK when done, or Menu/Back to cancel</label>
+			<label>Press any combination of up, down, left, and right.  Press Enter/OK when done, or Menu/Back to cancel</label>
             <wrapmultiline>true</wrapmultiline>
 			<font>font13</font>
 		</control>
