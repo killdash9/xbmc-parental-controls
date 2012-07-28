@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
-<addon id="script.video.parentalcontrols" name="Parental Controls" version="1.4.2" provider-name="killdash9">
+<addon id="script.video.parentalcontrols" name="Parental Controls" version="1.4.3" provider-name="killdash9">
   <requires>
     <import addon="xbmc.python" version="2.0"/>
   </requires>

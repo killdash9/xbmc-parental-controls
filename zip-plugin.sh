@@ -1,4 +1,5 @@
-FILENAME=script.video.parentalcontrols-`cat script.video.parentalcontrols/addon.xml |grep  'id="script.video.parentalcontrols"' |sed 's,.*version *= *"\([^"]*\)".*,\1,'`.zip
-rm repo/script.video.parentalcontrols/$FILENAME
-zip -r repo/script.video.parentalcontrols/$FILENAME script.video.parentalcontrols/
+FILENAME=repo/script.video.parentalcontrols/script.video.parentalcontrols-`cat script.video.parentalcontrols/addon.xml |grep  'id="script.video.parentalcontrols"' |sed 's,.*version *= *"\([^"]*\)".*,\1,'`.zip
+rm $FILENAME
+zip -r $FILENAME script.video.parentalcontrols/
+git add $FILENAME
 python addons_xml_generator.py
