@@ -5,7 +5,7 @@ from os import path
 __addon__       = xbmcaddon.Addon('script.video.parentalcontrols')
 __icon__        = __addon__.getAddonInfo('icon')
 __addonpath__   = __addon__.getAddonInfo('path')
-globalSettingsFile = __addonpath__ + "/globalsettings.txt"
+globalSettingsFile = __addonpath__ + "/../parental-controls-settings.txt"
 
 def readGlobalSettings():
     if (path.exists(globalSettingsFile)):
