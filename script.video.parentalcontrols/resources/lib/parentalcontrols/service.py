@@ -8,8 +8,8 @@ def checkProtection():
     for plugin in plugins:
         state = hook.getPluginHookState(plugin)
         if (not state['hooked']) or not (state['uptodate']):
-            hook.hookPlugin(plugin)
-            common.msg("Re-protecting plugin " + plugin)
+            p=hook.hookPlugin(plugin)
+            common.msg("Re-protecting plugin " + p['name'])
         
 
 common.msg("Started")

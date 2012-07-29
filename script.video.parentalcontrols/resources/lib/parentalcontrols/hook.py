@@ -17,7 +17,7 @@ hookPattern = """(?is)#Begin parental controls hook.*?#End parental controls hoo
 """
 hookCode="""#Begin parental controls hook
 try:import parentalcontrols.wrap
-except:raise
+except:pass
 #End parental controls hook
 """
 
@@ -78,6 +78,7 @@ def hookPlugin(pluginid):
     f = open(pluginlibfile,'w')
     f.write(code)
     f.close()
+    return state
 
 def unhookPlugin(pluginid):
     state = getPluginHookState(pluginid)
