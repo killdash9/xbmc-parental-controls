@@ -57,7 +57,8 @@ def getVideoPlugins():
         if (addondir =="packages"):
             continue
 
-        state = getPluginHookState(addondir)
+        if (os.path.isfile(__addonpath__+"/../"+addondir+"/addon.xml")):
+            state = getPluginHookState(addondir)
         
         if (state):
             plugins.append(state)
