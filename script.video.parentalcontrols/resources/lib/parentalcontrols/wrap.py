@@ -188,7 +188,7 @@ def wrapper_import(*args,**kwargs):
 
 #don't hook if override marker is present and they have the code
 hook=True
-unlockWindow = 1 * 60 
+unlockWindow = 5 * 60 
 print "ARGV is ", sys.argv
 if (len(sys.argv) > 2 and sys.argv[2].find(overridemarker)>=0):
     sys.argv[2] = sys.argv[2].replace(overridemarker,"") #strip marker
