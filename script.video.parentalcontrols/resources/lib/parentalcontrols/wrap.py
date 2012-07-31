@@ -155,7 +155,7 @@ def wrapper_PlayList_add(self, url, listitem = None, index = -1):
         listitem=listitem._obj
     return self._obj.add(url,listitem,index)
 
-#PlayList method overrides
+#Player method overrides
 def wrapper_Player(*args,**kwargs):
     rv = Player(*args,**kwargs)
     cls=type("PlayerProxy",(Proxy,),{"play":wrapper_Player_play})
