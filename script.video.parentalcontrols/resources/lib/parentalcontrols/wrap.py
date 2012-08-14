@@ -78,19 +78,19 @@ def allowed(wrappeditem, isFolder):
         and wrappeditem.type.lower() == 'video'
         and hasattr(wrappeditem, "infoLabels")
         ):
-        print wrappeditem.infoLabels
+        #print wrappeditem.infoLabels
         for k in wrappeditem.infoLabels:
             if (k.lower() == "mpaa"):
                 mpaa = wrappeditem.infoLabels[k]
-                print "Current settings: " + common.getMovieRating() + " " + common.getTVRating()
+                #print "Current settings: " + common.getMovieRating() + " " + common.getTVRating()
                 if (not common.allowed(mpaa)):
-                    print "Blocking rating " + mpaa
+                    #print "Blocking rating " + mpaa
                     addBlockedRating(mpaa)
                     return False
                 else:
-                    print "Allowing rating " + mpaa
+                    #print "Allowing rating " + mpaa
                     return True
-        print "Couldn't find rating, returning isFolder: %s" % isFolder
+        #print "Couldn't find rating, returning isFolder: %s" % isFolder
         if not isFolder:
             addBlockedRating("Unknown Rating")
         return isFolder #allow folders
@@ -189,7 +189,6 @@ def wrapper_import(*args,**kwargs):
 #don't hook if override marker is present and they have the code
 hook=True
 unlockWindow = 5 * 60 
-print "ARGV is ", sys.argv
 if (len(sys.argv) > 2 and sys.argv[2].find(overridemarker)>=0):
     sys.argv[2] = sys.argv[2].replace(overridemarker,"") #strip marker
     if (codeui.unlockUI()):
