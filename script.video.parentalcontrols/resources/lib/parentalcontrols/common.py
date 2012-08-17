@@ -1,5 +1,6 @@
 import xbmcaddon
 import xbmc
+import xbmcgui
 from os import path
 
 __addon__       = xbmcaddon.Addon('script.video.parentalcontrols')
@@ -68,6 +69,8 @@ movieRatings = ['All Movies','R','PG-13','PG','G']
 tvRatings = ['All TV','TV-MA','TV-14','TV-PG','TV-G','TV-Y7-FV','TV-Y7','TV-Y']
 
 def allowed(rating):
+    if not rating:
+        return False
     rating = rating.upper()
     try:
         r = movieRatings.index(rating)
@@ -90,8 +93,20 @@ def allowed(rating):
                 return False
         except:
             #it's neither a TV rating nor a move rating.  Let's log this
-            print "Unrecognized rating: " + rating
             return False
+
+def closeProgressDialogIfOpen():
+    progressDialog= None
+    progressDialogWindowId=10101
+    try:
+        progressDialog = xbmcgui.Window(progressDialogWindowId)
+    except:
+        #window not found
+        pass
+    if progressDialog:
+        #close progress dialog so it doesn't interfere
+        xbmc.executebuiltin( "Dialog.Close(%s,true)" % progressDialogWindowId )
+
 
 def msg(s):
     print s

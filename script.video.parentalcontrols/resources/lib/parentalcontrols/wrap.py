@@ -78,24 +78,27 @@ def allowed(wrappeditem, isFolder):
         and wrappeditem.type.lower() == 'video'
         and hasattr(wrappeditem, "infoLabels")
         ):
-        #print wrappeditem.infoLabels
-        for k in wrappeditem.infoLabels:
-            if (k.lower() == "mpaa"):
-                mpaa = wrappeditem.infoLabels[k]
-                #print "Current settings: " + common.getMovieRating() + " " + common.getTVRating()
-                if (not common.allowed(mpaa)):
-                    #print "Blocking rating " + mpaa
-                    addBlockedRating(mpaa)
-                    return False
-                else:
-                    #print "Allowing rating " + mpaa
-                    return True
-        #print "Couldn't find rating, returning isFolder: %s" % isFolder
+        rating=getMpaaRating(wrappeditem.infoLabels)
+        if rating:
+            if common.allowed(rating):
+                return True
+            else:
+                addBlockedRating(rating)
+                return False
         if not isFolder:
             addBlockedRating("Unknown Rating")
-        return isFolder #allow folders
+            return False
+        return True #it's a folder, let it through
+    print "shouldn't get here"
     return True #shouldn't happen
     
+# returns None if no rating
+def getMpaaRating(infoLabels):
+    for k in infoLabels:
+        if k.lower() == "mpaa":
+            return infoLabels[k]
+    return None
+
 def unwrapTuple(t):
     if (len(t) == 2):
         return (t[0],t[1]._obj)
@@ -161,10 +164,21 @@ def wrapper_Player(*args,**kwargs):
     cls=type("PlayerProxy",(Proxy,),{"play":wrapper_Player_play})
     return cls(rv)
 
-def wrapper_Player_play(item = None, listitem = None, windowed = False):
+def wrapper_Player_play(self, item = None, listitem = None, windowed = False):
+    
     if (listitem and hasattr(listitem,"_obj")):
+        wrappeditem = listitem
+        rating=getMpaaRating(wrappeditem.infoLabels)
+        if not common.allowed(rating):
+            blockedRating = rating or "Unknown Rating"
+            if not codeui.unlockUI("Blocked (%s)" % blockedRating):
+                return None
+            setUnlockedTime(int(time.time()))
+            common.msg("Unlocked for 5 minutes")
+        #unwrap before delegating
         listitem=listitem._obj
     if (item and hasattr(item,"_obj")):
+        #unwrap before delegating
         item = item._obj
     return self._obj.play(item, listitem, windowed)
 

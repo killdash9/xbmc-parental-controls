@@ -41,6 +41,7 @@ class ComboWinXML(xbmcgui.WindowXMLDialog):
 
 def showComboDialog(title):
     ui= ComboWinXML("DialogCode.xml", __addonpath__, "default", title)
+    common.closeProgressDialogIfOpen()
     ui.doModal()
     if (ui.ok):
         code = ui.code
