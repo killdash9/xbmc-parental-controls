@@ -124,10 +124,11 @@ def wrapper_addDirectoryItems(handle, items, totalItems = 0):
 def wrapper_endOfDirectory(handle, succeeded = True, updateListing = False, cacheToDisc = True):
     url = sys.argv[0] + sys.argv[2] + overridemarker
     if (getBlocked() > 0):
-        item = ListItem("Blocked %s (%s)" % (getBlockedRatingsString(),getBlocked()),"",common.__icon__, common.__icon__)
+        title="Blocked %s (%s)" % (getBlockedRatingsString(),getBlocked())
+        item = ListItem(title,"",common.__icon__, common.__icon__)
         info={
-            "Title":"Blocked by Parenal Controls",
-            "Plot":"Some content has been blocked by the Parental Controls plugin.  Click to unblock."
+            "Title":title
+            "Plot":"Some content has been blocked by the Parental Controls addon.  Click to unblock."
             }
         item.setInfo("video",info)
         addDirectoryItem(handle, url, item, False, getAllowed()+1)
