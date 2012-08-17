@@ -127,7 +127,7 @@ def wrapper_endOfDirectory(handle, succeeded = True, updateListing = False, cach
         title="Blocked %s (%s)" % (getBlockedRatingsString(),getBlocked())
         item = ListItem(title,"",common.__icon__, common.__icon__)
         info={
-            "Title":title
+            "Title":title,
             "Plot":"Some content has been blocked by the Parental Controls addon.  Click to unblock."
             }
         item.setInfo("video",info)
