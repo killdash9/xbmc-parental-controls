@@ -4,4 +4,4 @@ zip -r $FILENAME script.video.parentalcontrols/
 git add $FILENAME
 python addons_xml_generator.py
 git status
-echo "Don't forget to commit and push"
+echo "Don't forget to add, commit and push"

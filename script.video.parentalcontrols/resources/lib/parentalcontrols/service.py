@@ -1,46 +1,29 @@
 import time
-import common
-import hook
 import traceback
-import xbmcgui
+import xbmcaddon
+import os
+import xbmc
 
-def checkProtection():
-    plugins = common.getProtectedPlugins()
-    for plugin in plugins:
-        state = hook.getPluginHookState(plugin)
-        if (not state['hooked']) or not (state['uptodate']):
-            p=hook.hookPlugin(plugin)
-            common.msg("Re-protecting plugin " + p['name'])
-            
-def closeProgressDialogIfInterfering():
-    pythonWindow = None
-    pythonWindowId=13000
-    try:
-        pythonWindow=xbmcgui.Window(pythonWindowId)
-    except:
-        pass
-        #window not found
-    if pythonWindow:
-        xmlfile = pythonWindow.getProperty('xmlfile')
-        codeDialogIsUp = xmlfile and xmlfile.find('DialogCode.xml')>=0
-        if codeDialogIsUp:
-            #close any other open dialogs so they don't interfere
-            common.closeProgressDialogIfOpen()
+import common
+import serviceiter
 
+__addonpath__   = xbmcaddon.Addon().getAddonInfo('path')
+        
 common.msg("Started")
 lastMessage = time.time()
-counter=0
 while (not xbmc.abortRequested):
     try:
-        counter = counter+1
-        if counter % 20 == 0:
-            checkProtection()
-            common.getXbmcAdultIds() #keep the cache up to date
-        closeProgressDialogIfInterfering()
-        
+        files = os.listdir(__addonpath__ + "/resources/lib/parentalcontrols")
+        for file in files:
+            if file.endswith(".py") and file != "service.py" and file != "settings.py":
+                module=file[:-3]
+                #reimport the module
+                try:
+                    reload(eval(module))
+                except NameError:
+                    exec("import " + module)
+        serviceiter.iterate()
     except:
         traceback.print_exc()
-        if (time.time() - lastMessage > 5*60): #we don't want to be too annoying with errors
-            common.msg("Error checking plugin protection status")
-            lastMessage = time.time()
-    time.sleep(.5)
+        time.sleep(10)
+        

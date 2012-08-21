@@ -2,6 +2,7 @@ from xml.dom.minidom import parse
 import re
 import os
 import xbmcaddon
+import traceback
 
 __addon__       = xbmcaddon.Addon()
 __addonpath__   = __addon__.getAddonInfo('path')

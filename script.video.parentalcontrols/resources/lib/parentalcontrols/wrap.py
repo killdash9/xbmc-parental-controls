@@ -208,19 +208,21 @@ def wrapper_import(*args,**kwargs):
 
 #Determines whether to wrap the plugin.  Also shows unlock dialog
 def check():
+
+    showUnlockDialog = False
     
-    unlockWindow = 5*60
-    if time.time() - getUnlockedTime() < unlockWindow:
-        return #early return, we're in unlock window so we don't wrap
-
-    # see if we're an adult plugin
-    showUnlockDialog = thisAddonId in common.getXbmcAdultIds() 
-
     # see if our marker is present
     match=re.search(overridemarkerPattern, sys.argv[2] if len(sys.argv) > 2 else None)
     if match:
         sys.argv[2] = re.sub(overridemarkerPattern,'',sys.argv[2]) #strip marker
         showUnlockDialog=True
+
+    unlockWindow = 5*60
+    if time.time() - getUnlockedTime() < unlockWindow:
+        return #early return, we're in unlock window so we don't wrap
+
+    # see if we're an adult plugin
+    showUnlockDialog = showUnlockDialog or thisAddonId in common.getXbmcAdultIds() 
 
     if showUnlockDialog:
         if codeui.unlockUI():

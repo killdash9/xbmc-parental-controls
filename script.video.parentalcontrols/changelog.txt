@@ -1,6 +1,10 @@
+1.5.2
+Future upgrades should no longer require a restart (service is hot-deployed)
+Bug fixes
+
 1.5.0
 Better search integration
-Adult addons are blocked at the top level
+xbmc-adult addons are blocked at the top level
 Bug fixes
 
 1.4.11 
