@@ -33,8 +33,9 @@ counter=0
 while (not xbmc.abortRequested):
     try:
         counter = counter+1
-        if counter % 10 == 0:
+        if counter % 20 == 0:
             checkProtection()
+            common.getXbmcAdultIds() #keep the cache up to date
         closeProgressDialogIfInterfering()
         
     except:
@@ -42,4 +43,4 @@ while (not xbmc.abortRequested):
         if (time.time() - lastMessage > 5*60): #we don't want to be too annoying with errors
             common.msg("Error checking plugin protection status")
             lastMessage = time.time()
-    time.sleep(1)
+    time.sleep(.5)

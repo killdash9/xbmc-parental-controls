@@ -2,6 +2,10 @@ import xbmcaddon
 import xbmc
 import xbmcgui
 from os import path
+import urllib2
+from xml.dom.minidom import parse
+import time
+import traceback
 
 __addon__       = xbmcaddon.Addon('script.video.parentalcontrols')
 __icon__        = __addon__.getAddonInfo('icon')
@@ -111,3 +115,24 @@ def closeProgressDialogIfOpen():
 def msg(s):
     print s
     xbmc.executebuiltin('XBMC.Notification("%s", "%s", %s, %s)' % ( "Parental Controls", s, 2000, __icon__) )
+
+def getXbmcAdultIds():
+    cacheDuration=60*60 #1 hour
+    lastUpdate = getGlobalSetting("xbmc-adult-addon-update-time",0)
+    if time.time()>lastUpdate + cacheDuration:
+        try:
+            refreshXbmcAdultAddonRepoXML()
+        except:
+            traceback.print_exc()
+    return getGlobalSetting("xbmc-adult-addon-ids", [u'metadata.movie.adultdvdempire.com', u'metadata.movie.aebn.gay.net', u'metadata.movie.aebn.net', u'metadata.movie.cduniverse.com', u'metadata.movie.excaliburfilms.com', u'metadata.movie.xonair.com', u'plugin.video.empflix', u'plugin.video.fantasticc', u'plugin.video.lubetube', u'plugin.video.tube8', u'plugin.video.videodevil', u'plugin.video.you.jizz', u'repository.xbmcadult'])
+
+def refreshXbmcAdultAddonRepoXML():
+    response = urllib2.urlopen('http://xbmc-adult.googlecode.com/svn/trunk/addons.xml')
+    xml=parse(response)
+    adultIds=[]
+    for addon in xml.getElementsByTagName("addon"):
+        id=addon.getAttribute("id")
+        if id:
+            adultIds.append(id)
+    setGlobalSetting("xbmc-adult-addon-ids",adultIds)
+    setGlobalSetting("xbmc-adult-addon-update-time", int(time.time()))

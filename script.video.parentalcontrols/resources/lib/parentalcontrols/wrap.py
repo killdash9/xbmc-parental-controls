@@ -7,8 +7,10 @@ import sys
 import codeui
 import xbmc
 import time
+import re
 
 __addon__ = xbmcaddon.Addon('script.video.parentalcontrols')
+thisAddonId   = xbmcaddon.Addon().getAddonInfo('id')
 
 def resetCounts():
     __addon__.setSetting("total","0")
@@ -105,7 +107,8 @@ def unwrapTuple(t):
     else:
         return (t[0],t[1]._obj, t[2])
 
-overridemarker = '?pc_override=true'
+overridemarker = '?pc_override'
+overridemarkerPattern = r'\?pc_override=(\w+)'
 
 #xmbcplugin function overrides
 def wrapper_addDirectoryItem(handle, url, listitem, isFolder=False, totalItems = 0):
@@ -113,6 +116,9 @@ def wrapper_addDirectoryItem(handle, url, listitem, isFolder=False, totalItems =
     if (not allowed(listitem, isFolder)):
         return False
     incrementAllowed(1)
+    if listitem.getLabel() and re.sub(r'[\W]+','',listitem.getLabel().lower()) == "search":
+        url = url + overridemarker + "=true"
+        listitem.setLabel(listitem.getLabel() + " (Protected)")
     return addDirectoryItem(handle, url, listitem._obj, isFolder, totalItems-getBlocked())
 
 def wrapper_addDirectoryItems(handle, items, totalItems = 0):
@@ -122,7 +128,7 @@ def wrapper_addDirectoryItems(handle, items, totalItems = 0):
     return addDirectoryItems(handle, items, totalItems-getBlocked())
 
 def wrapper_endOfDirectory(handle, succeeded = True, updateListing = False, cacheToDisc = True):
-    url = sys.argv[0] + sys.argv[2] + overridemarker
+    url = sys.argv[0] + sys.argv[2] + overridemarker + "=true"
     if (getBlocked() > 0):
         title="Blocked %s (%s)" % (getBlockedRatingsString(),getBlocked())
         item = ListItem(title,"",common.__icon__, common.__icon__)
@@ -200,20 +206,30 @@ def wrapper_import(*args,**kwargs):
         rv.Player = wrapper_Player
     return rv
 
-
-#don't hook if override marker is present and they have the code
-hook=True
-unlockWindow = 5 * 60 
-if (len(sys.argv) > 2 and sys.argv[2].find(overridemarker)>=0):
-    sys.argv[2] = sys.argv[2].replace(overridemarker,"") #strip marker
-    if (codeui.unlockUI()):
-        setUnlockedTime(int(time.time()))
-        common.msg("Unlocked for 5 minutes")
-        xbmc.executebuiltin('Container.Update(' + sys.argv[0] + sys.argv[2] + ')')
-    exit() #we don't want the plugin to execute
-elif (time.time() - getUnlockedTime() < unlockWindow):
-    hook = False
+#Determines whether to wrap the plugin.  Also shows unlock dialog
+def check():
     
-if (hook):
+    unlockWindow = 5*60
+    if time.time() - getUnlockedTime() < unlockWindow:
+        return #early return, we're in unlock window so we don't wrap
+
+    # see if we're an adult plugin
+    showUnlockDialog = thisAddonId in common.getXbmcAdultIds() 
+
+    # see if our marker is present
+    match=re.search(overridemarkerPattern, sys.argv[2] if len(sys.argv) > 2 else None)
+    if match:
+        sys.argv[2] = re.sub(overridemarkerPattern,'',sys.argv[2]) #strip marker
+        showUnlockDialog=True
+
+    if showUnlockDialog:
+        if codeui.unlockUI():
+            setUnlockedTime(int(time.time()))
+            common.msg("Unlocked for 5 minutes")
+            xbmc.executebuiltin('Container.Update(' + sys.argv[0] + sys.argv[2] + ')')
+        #else incorrect code, abort navigation with exit()
+        exit()
+
     __builtins__['__import__'] = wrapper_import
     resetCounts()
+

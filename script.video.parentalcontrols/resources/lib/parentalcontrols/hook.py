@@ -16,7 +16,10 @@ def getText(nodelist):
 hookPattern = """(?is)#Begin parental controls hook.*?#End parental controls hook
 """
 hookCode="""#Begin parental controls hook
-try:import parentalcontrols.wrap
+try:
+    import parentalcontrols.wrap
+    parentalcontrols.wrap.check()
+except (KeyboardInterrupt, SystemExit):raise
 except:pass
 #End parental controls hook
 """
