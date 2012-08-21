@@ -4,4 +4,4 @@ echo version is $VERSION &&
 git checkout gh-pages &&
 sed -i "" 's,script.video.parentalcontrols-[^"]*\.zip,script.video.parentalcontrols-'$VERSION'.zip,' index.html &&
 git commit index.html -m "pointing to latest download ($VERSION)" &&
-echo git push 
+git push 
