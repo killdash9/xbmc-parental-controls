@@ -12,7 +12,7 @@
              library="resources/lib" />
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Parental Controls</summary>
-    <description lang="en">A parental controls addon.  Works only with sources that provide ratings such as HULU.</description>
+    <description lang="en">Lock video addon content with a code, away from the prying eyes of young viewers.</description>
     <platform>all</platform>
   </extension>
   <extension point="xbmc.addon.repository"
