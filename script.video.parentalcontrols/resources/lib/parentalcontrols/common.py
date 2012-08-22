@@ -11,6 +11,8 @@ __addon__       = xbmcaddon.Addon('script.video.parentalcontrols')
 __icon__        = __addon__.getAddonInfo('icon')
 __addonpath__   = __addon__.getAddonInfo('path')
 globalSettingsFile = __addonpath__ + "/../parental-controls-settings.txt"
+addonSettingsCache={}
+lastAddonSettingsCacheFlush=time.time()
 
 def readGlobalSettings():
     if (path.exists(globalSettingsFile)):
@@ -34,6 +36,21 @@ def setGlobalSetting(name, value):
     settings = readGlobalSettings()
     settings[name]=value
     writeSettings(settings)
+
+def setAddonSetting(name, value):
+    global addonSettingsCache
+    __addon__.setSetting(name,value)
+    addonSettingsCache[name]=value
+
+def getAddonSetting(name, default=None):
+    global addonSettingsCache
+    if time.time() - lastAddonSettingsCacheFlush > 5: #5 second cache expiration
+        addonSettingsCache={}
+    if name in addonSettingsCache:
+        return addonSettingsCache[name]
+    value = __addon__.getSetting(name) or default
+    addonSettingsCache[name]=value
+    return value
     
 def getCode():
     return getGlobalSetting("code")
@@ -42,22 +59,28 @@ def setCode(code):
     return setGlobalSetting("code",code)
 
 def getTVRating():
-    return __addon__.getSetting("tv-rating") or "All TV"
+    rating=getAddonSetting("tv-rating","Allow All TV")
+    if rating == "All TV":
+        rating = "Allow All TV"
+    return rating
 
 def setTVRating(rating):
-    return __addon__.setSetting("tv-rating",rating)
+    return setAddonSetting("tv-rating",rating)
 
 def getMovieRating():
-    return __addon__.getSetting("movie-rating") or "All Movies"
+    rating = getAddonSetting("movie-rating","Allow All Movies")
+    if rating == "All Movies":
+        rating = "Allow All Movies"
+    return rating
 
 def setMovieRating(rating):
-    return __addon__.setSetting("movie-rating",rating)
+    return setAddonSetting("movie-rating",rating)
 
 def getProtectedPlugins():
-    return eval(__addon__.getSetting("protected-plugins") or "set()")
+    return eval(getAddonSetting("protected-plugins","set()"))
 
 def setProtectedPlugins(protectedPlugins):
-    return __addon__.setSetting("protected-plugins",str(protectedPlugins))
+    return setAddonSetting("protected-plugins",str(protectedPlugins))
 
 def addProtectedPlugin(plugin):
     protectedPlugins = getProtectedPlugins()
@@ -69,35 +92,34 @@ def removeProtectedPlugin(plugin):
     protectedPlugins.remove(plugin)
     setProtectedPlugins(protectedPlugins)
 
-movieRatings = ['All Movies','R','PG-13','PG','G']
-tvRatings = ['All TV','TV-MA','TV-14','TV-PG','TV-G','TV-Y7-FV','TV-Y7','TV-Y']
+movieRatings = ['Allow All Movies', 'NC-17', 'R','PG-13','PG','G','Block All Movies']
+tvRatings = ['Allow All TV', 'TV-MA','TV-14','TV-PG','TV-G','TV-Y7-FV','TV-Y7','TV-Y','Block All TV']
 
 def allowed(rating):
     if not rating:
         return False
     rating = rating.upper()
+    allowedMovie = getMovieRating()
+    allowedTV = getTVRating()
     try:
-        r = movieRatings.index(rating)
-        #it's a movie rating
-        try:
-            a = movieRatings.index(getMovieRating())
+        if rating in movieRatings:
+            #it's a movie rating
+            r = movieRatings.index(rating)
+            a = movieRatings.index(allowedMovie)
             return a <= r
-        except:
-            #something's funny
-            return False
-    except:
-        #it's not a movie rating
-        try:
-            r = tvRatings.index(rating)
+        elif rating in tvRatings:
             #it's a tv rating
-            try:
-                a = tvRatings.index(getTVRating())
-                return a <= r
-            except:
-                return False
-        except:
-            #it's neither a TV rating nor a move rating.  Let's log this
-            return False
+            r = tvRatings.index(rating)
+            a = tvRatings.index(allowedTV)
+            return a <= r
+        else:
+            # it's neither a TV rating nor a movie rating.  We don't know whether it's TV or movie,
+            # but let it through if they're allowing everything, otherwise block it.
+            return (allowedMovie == "Allow All Movies" or allowedMovie == "NC-17")  and (allowedTV == "Allow All TV" or allowedTV == "TV-MA")
+    except ValueError:
+        #something's funny
+        traceback.print_exc()
+        return False
 
 def closeProgressDialogIfOpen():
     progressDialog= None

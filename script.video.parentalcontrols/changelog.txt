@@ -1,3 +1,7 @@
+1.5.3
+Performance improvements
+Changed "All Movies/TV" setting to read more clearly "Allow All Movies/TV"
+
 1.5.2
 Future upgrades should no longer require a restart (service is hot-deployed)
 Bug fixes

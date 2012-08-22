@@ -9,54 +9,30 @@ import xbmc
 import time
 import re
 
-__addon__ = xbmcaddon.Addon('script.video.parentalcontrols')
-thisAddonId   = xbmcaddon.Addon().getAddonInfo('id')
-
-def resetCounts():
-    __addon__.setSetting("total","0")
-    __addon__.setSetting("allowed","0")
-    __addon__.setSetting("blocked-ratings","set()")
-    
-def incrementAllowed(i):
-    __addon__.setSetting("allowed",str(getAllowed()+i))
-
-def incrementTotal(i):
-    __addon__.setSetting("total",str(getTotal()+i))
-
-def getTotal():
-    return int(__addon__.getSetting("total") or 0)
-
-def getAllowed():
-    return int(__addon__.getSetting("allowed") or 0)
+allowedItems=0
+total = 0
+blockedRatings = set()
 
 def getBlocked():
-    return getTotal() - getAllowed()
+    global total, allowedItems
+    return total - allowedItems
 
 def getUnlockedTime():
-    return int(__addon__.getSetting("unlocked-time") or 0)
+    return int(common.getAddonSetting("unlocked-time",0))
 
 def setUnlockedTime(i):
-    return __addon__.setSetting("unlocked-time",str(i))
-
-def getBlockedRatings():
-    return eval(__addon__.getSetting("blocked-ratings") or "set()")
-
-def setBlockedRatings(blockedRatings):
-    return __addon__.setSetting("blocked-ratings",str(blockedRatings))
+    return common.setAddonSetting("unlocked-time",str(i))
 
 def addBlockedRating(rating):
     if len(rating)<=5:
         rating = rating.upper()
     if not rating:
         rating="Unrated"
-    blockedRatings = getBlockedRatings()
     blockedRatings.add(rating)
-    setBlockedRatings(blockedRatings)
 
 def getBlockedRatingsString():
-    s=getBlockedRatings()
     retVal=""
-    for rating in s:
+    for rating in blockedRatings:
         if len(retVal)>0:
             retVal +=","
         retVal +=rating
@@ -112,22 +88,25 @@ overridemarkerPattern = r'\?pc_override=(\w+)'
 
 #xmbcplugin function overrides
 def wrapper_addDirectoryItem(handle, url, listitem, isFolder=False, totalItems = 0):
-    incrementTotal(1)
+    global total,allowedItems
+    total=total+1
     if (not allowed(listitem, isFolder)):
         return False
-    incrementAllowed(1)
+    allowedItems = allowedItems + 1
     if listitem.getLabel() and re.sub(r'[\W]+','',listitem.getLabel().lower()) == "search":
         url = url + overridemarker + "=true"
         listitem.setLabel(listitem.getLabel() + " (Protected)")
     return addDirectoryItem(handle, url, listitem._obj, isFolder, totalItems-getBlocked())
 
 def wrapper_addDirectoryItems(handle, items, totalItems = 0):
-    incrementTotal(len(items))
+    global total,allowedItems
+    total=total+len(items)
     items = [unwrapTuple(t) for t in items if allowed(t[1], t[2] if len(t) > 2 else False)]
-    incrementAllowed(len(items))
+    allowedItems = allowedItems + len(items)
     return addDirectoryItems(handle, items, totalItems-getBlocked())
 
 def wrapper_endOfDirectory(handle, succeeded = True, updateListing = False, cacheToDisc = True):
+    global allowedItems
     url = sys.argv[0] + sys.argv[2] + overridemarker + "=true"
     if (getBlocked() > 0):
         title="Blocked %s (%s)" % (getBlockedRatingsString(),getBlocked())
@@ -137,7 +116,7 @@ def wrapper_endOfDirectory(handle, succeeded = True, updateListing = False, cach
             "Plot":"Some content has been blocked by the Parental Controls addon.  Click to unblock."
             }
         item.setInfo("video",info)
-        addDirectoryItem(handle, url, item, False, getAllowed()+1)
+        addDirectoryItem(handle, url, item, False, allowedItems+1)
     return endOfDirectory(handle,succeeded,updateListing,cacheToDisc)
 
 def wrapper_setResolvedUrl(handle, succeeded, listitem):
@@ -222,6 +201,7 @@ def check():
         return #early return, we're in unlock window so we don't wrap
 
     # see if we're an adult plugin
+    thisAddonId   = xbmcaddon.Addon().getAddonInfo('id')
     showUnlockDialog = showUnlockDialog or thisAddonId in common.getXbmcAdultIds() 
 
     if showUnlockDialog:
@@ -233,5 +213,4 @@ def check():
         exit()
 
     __builtins__['__import__'] = wrapper_import
-    resetCounts()
 
